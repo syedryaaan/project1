@@ -72,7 +72,13 @@ app.use("/api/users/register", authLimiter);
 // ─── Request Parsing ───────────────────────────────────────────────────────────
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));
-app.use(mongoSanitize());
+
+// Express 5 compatible NoSQL sanitization
+app.use((req, res, next) => {
+  if (req.body) mongoSanitize.sanitize(req.body);
+  if (req.params) mongoSanitize.sanitize(req.params);
+  next();
+});
 
 // ─── Logging ──────────────────────────────────────────────────────────────────
 if (process.env.NODE_ENV === "development") {
