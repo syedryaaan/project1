@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <defs>
+    <linearGradient id="nexaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6C63FF" />
+      <stop offset="100%" stop-color="#FF6B6B" />
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="8" fill="#0A0A0F" />
+  <path d="M7 23V9L15 19V9H18V23L10 13V23H7Z" fill="url(#nexaGrad)" />
+  <circle cx="23" cy="11" r="2.5" fill="#FFD93D" />
+</svg>
