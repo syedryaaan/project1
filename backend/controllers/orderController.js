@@ -3,6 +3,7 @@
 import asyncHandler from "express-async-handler";
 import Order from "../models/orderModel.js";
 import Product from "../models/productModel.js";
+import User from "../models/userModel.js";
 
 // Server-side price recalculation helpers
 const calcPrices = async (orderItems) => {
@@ -210,7 +211,6 @@ const getAnalytics = asyncHandler(async (req, res) => {
     { $sort: { _id: 1 } },
   ]);
 
-  const { Product } = await import("../models/productModel.js");
   const totalProducts = await Product.countDocuments();
   const lowStockProducts = await Product.find({
     countInStock: { $lte: 5, $gt: 0 },
@@ -221,7 +221,6 @@ const getAnalytics = asyncHandler(async (req, res) => {
     countInStock: 0,
   });
 
-  const { User } = await import("../models/userModel.js");
   const totalCustomers = await User.countDocuments({ isAdmin: false });
   const recentCustomers = await User.find({ isAdmin: false })
     .sort({ createdAt: -1 })

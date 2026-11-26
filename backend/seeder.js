@@ -1,8 +1,11 @@
 // NexaStore — Database Seeder
 // Original project by Marios Kanellopoulos (MIT), adapted for NexaStore
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import colors from "colors";
+import "colors";
 
 import User from "./models/userModel.js";
 import Product from "./models/productModel.js";
@@ -10,8 +13,12 @@ import Order from "./models/orderModel.js";
 import Category from "./models/categoryModel.js";
 import connectDB from "./config/db.js";
 
-dotenv.config();
-connectDB();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const envPath = path.resolve(__dirname, "../.env");
+if (fs.existsSync(envPath)) {
+  dotenv.config({ path: envPath });
+}
 
 const categories = [
   {
@@ -219,8 +226,18 @@ const destroyData = async () => {
   }
 };
 
-if (process.argv[2] === "-d") {
-  destroyData();
-} else {
-  importData();
-}
+const run = async () => {
+  try {
+    await connectDB();
+    if (process.argv[2] === "-d") {
+      await destroyData();
+    } else {
+      await importData();
+    }
+  } catch (error) {
+    console.error(`❌ ${error.message}`.red.inverse);
+    process.exit(1);
+  }
+};
+
+run();
