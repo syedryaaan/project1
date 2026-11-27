@@ -34,13 +34,16 @@ const RegisterScreen = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!name || !email || !password || !confirmPassword) {
-      toast.error("Please fill in all fields"); return;
+      toast.error("Please fill in all fields");
+      return;
     }
     if (password !== confirmPassword) {
-      toast.error("Passwords do not match"); return;
+      toast.error("Passwords do not match");
+      return;
     }
     if (password.length < 6) {
-      toast.error("Password must be at least 6 characters"); return;
+      toast.error("Password must be at least 6 characters");
+      return;
     }
     dispatch(register(name, email, password));
   };
@@ -62,17 +65,18 @@ const RegisterScreen = () => {
 
           <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column" }}>
             {[
-              { label: "Full Name", icon: <FiUser />, value: name, setter: setName, type: "text", placeholder: "John Doe", autoComplete: "name" },
-              { label: "Email Address", icon: <FiMail />, value: email, setter: setEmail, type: "email", placeholder: "you@example.com", autoComplete: "email" },
-              { label: "Password", icon: <FiLock />, value: password, setter: setPassword, type: "password", placeholder: "Min. 6 characters", autoComplete: "new-password" },
-              { label: "Confirm Password", icon: <FiLock />, value: confirmPassword, setter: setConfirmPassword, type: "password", placeholder: "Repeat your password", autoComplete: "new-password" },
+              { id: "reg-name", label: "Full Name", icon: <FiUser aria-hidden="true" />, value: name, setter: setName, type: "text", placeholder: "Alex Johnson", autoComplete: "name" },
+              { id: "reg-email", label: "Email Address", icon: <FiMail aria-hidden="true" />, value: email, setter: setEmail, type: "email", placeholder: "you@example.com", autoComplete: "email" },
+              { id: "reg-password", label: "Password", icon: <FiLock aria-hidden="true" />, value: password, setter: setPassword, type: "password", placeholder: "Min. 6 characters", autoComplete: "new-password" },
+              { id: "reg-confirm", label: "Confirm Password", icon: <FiLock aria-hidden="true" />, value: confirmPassword, setter: setConfirmPassword, type: "password", placeholder: "Repeat your password", autoComplete: "new-password" },
             ].map((field) => (
-              <div key={field.label} className="form-group">
-                <label className="form-label">
+              <div key={field.id} className="form-group">
+                <label htmlFor={field.id} className="form-label">
                   <span style={{ marginRight: "0.4rem", verticalAlign: "middle" }}>{field.icon}</span>
                   {field.label}
                 </label>
                 <input
+                  id={field.id}
                   type={field.type}
                   className="form-control"
                   placeholder={field.placeholder}
@@ -85,13 +89,16 @@ const RegisterScreen = () => {
             ))}
 
             <button type="submit" className="btn-primary btn-block" style={{ marginTop: "0.5rem" }} disabled={loading}>
-              Create Account <FiArrowRight size={16} />
+              Create Account <FiArrowRight size={16} aria-hidden="true" />
             </button>
           </form>
 
           <div style={{ textAlign: "center", marginTop: "1.5rem", color: "var(--text-secondary)", fontSize: "0.875rem" }}>
             Already have an account?{" "}
-            <Link to={redirect ? `/login?redirect=${redirect}` : "/login"} style={{ color: "var(--brand-primary)", fontWeight: 600 }}>
+            <Link
+              to={redirect ? `/login?redirect=${encodeURIComponent(redirect)}` : "/login"}
+              style={{ color: "var(--brand-primary)", fontWeight: 600 }}
+            >
               Sign in
             </Link>
           </div>

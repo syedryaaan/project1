@@ -27,6 +27,7 @@ import ProductListScreen from "./screens/ProductListScreen";
 import ProductEditScreen from "./screens/ProductEditScreen";
 import OrderListScreen from "./screens/OrderListScreen";
 import WishlistScreen from "./screens/WishlistScreen";
+import SupportScreen from "./screens/SupportScreen";
 import NotFoundScreen from "./screens/NotFoundScreen";
 
 const App = () => {
@@ -59,7 +60,11 @@ const App = () => {
           <Route path="/placeorder" element={<PlaceOrderScreen />} />
           <Route path="/order/:id" element={<OrderScreen />} />
           <Route path="/wishlist" element={<WishlistScreen />} />
-          
+          <Route path="/help" element={<SupportScreen topic="help" />} />
+          <Route path="/returns" element={<SupportScreen topic="returns" />} />
+          <Route path="/shipping-policy" element={<SupportScreen topic="shipping" />} />
+          <Route path="/privacy-policy" element={<SupportScreen topic="privacy" />} />
+
           {/* Admin Routes */}
           <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="/admin/dashboard" element={<AdminDashboardScreen />} />
@@ -69,7 +74,7 @@ const App = () => {
           <Route path="/admin/productlist/:pageNumber" element={<ProductListScreen />} />
           <Route path="/admin/product/:id/edit" element={<ProductEditScreen />} />
           <Route path="/admin/orderlist" element={<OrderListScreen />} />
-          
+
           <Route path="*" element={<NotFoundScreen />} />
         </Routes>
       </main>

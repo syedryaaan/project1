@@ -5,7 +5,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { FiMail, FiLock, FiArrowRight } from "react-icons/fi";
 import { toast } from "react-toastify";
 
-import Message from "../components/Message";
 import Loader from "../components/Loader";
 import Meta from "../components/Meta";
 import { login } from "../actions/userActions";
@@ -32,7 +31,10 @@ const LoginScreen = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!email || !password) { toast.error("Please fill in all fields"); return; }
+    if (!email || !password) {
+      toast.error("Please fill in all fields");
+      return;
+    }
     dispatch(login(email, password));
   };
 
@@ -51,13 +53,14 @@ const LoginScreen = () => {
 
           {loading && <Loader message="Signing in..." />}
 
-          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "0" }}>
+          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column" }}>
             <div className="form-group">
-              <label className="form-label">
-                <FiMail size={14} style={{ marginRight: "0.4rem", verticalAlign: "middle" }} />
+              <label htmlFor="login-email" className="form-label">
+                <FiMail size={14} aria-hidden="true" style={{ marginRight: "0.4rem", verticalAlign: "middle" }} />
                 Email Address
               </label>
               <input
+                id="login-email"
                 type="email"
                 className="form-control"
                 placeholder="you@example.com"
@@ -69,11 +72,12 @@ const LoginScreen = () => {
             </div>
 
             <div className="form-group">
-              <label className="form-label">
-                <FiLock size={14} style={{ marginRight: "0.4rem", verticalAlign: "middle" }} />
+              <label htmlFor="login-password" className="form-label">
+                <FiLock size={14} aria-hidden="true" style={{ marginRight: "0.4rem", verticalAlign: "middle" }} />
                 Password
               </label>
               <input
+                id="login-password"
                 type="password"
                 className="form-control"
                 placeholder="Your password"
@@ -85,14 +89,14 @@ const LoginScreen = () => {
             </div>
 
             <button type="submit" className="btn-primary btn-block" style={{ marginTop: "1rem" }} disabled={loading}>
-              Sign In <FiArrowRight size={16} />
+              Sign In <FiArrowRight size={16} aria-hidden="true" />
             </button>
           </form>
 
           <div style={{ textAlign: "center", marginTop: "1.5rem", color: "var(--text-secondary)", fontSize: "0.875rem" }}>
             New to NexaStore?{" "}
             <Link
-              to={redirect ? `/register?redirect=${redirect}` : "/register"}
+              to={redirect ? `/register?redirect=${encodeURIComponent(redirect)}` : "/register"}
               style={{ color: "var(--brand-primary)", fontWeight: 600 }}
             >
               Create an account

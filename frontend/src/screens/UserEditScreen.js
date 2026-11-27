@@ -44,8 +44,8 @@ const UserEditScreen = () => {
       dispatch({ type: USER_UPDATE_RESET });
       toast.success("User updated successfully!");
       navigate("/admin/userlist");
-    } else {
-      if (!user.name || user._id !== userId) {
+    } else if (!error) {
+      if (!user?.name || user._id !== userId) {
         dispatch(getUserDetails(userId));
       } else {
         setName(user.name);
@@ -53,7 +53,7 @@ const UserEditScreen = () => {
         setIsAdmin(user.isAdmin);
       }
     }
-  }, [dispatch, navigate, user, userId, successUpdate, userInfo]);
+  }, [dispatch, navigate, user, userId, successUpdate, userInfo, error]);
 
   const submitHandler = (e) => {
     e.preventDefault();
@@ -62,7 +62,7 @@ const UserEditScreen = () => {
 
   return (
     <>
-      <Meta title={`Edit User: ${name}`} />
+      <Meta title={name ? `Edit User: ${name}` : "Edit User"} />
       <div className="container-custom" style={{ paddingTop: "2rem", paddingBottom: "4rem" }}>
         <AdminNav />
 
@@ -93,11 +93,12 @@ const UserEditScreen = () => {
             ) : (
               <form onSubmit={submitHandler} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
                 <div className="form-group">
-                  <label className="form-label">
-                    <FiUser size={14} style={{ marginRight: "0.4rem", verticalAlign: "middle" }} />
+                  <label htmlFor="edit-user-name" className="form-label">
+                    <FiUser size={14} aria-hidden="true" style={{ marginRight: "0.4rem", verticalAlign: "middle" }} />
                     Full Name
                   </label>
                   <input
+                    id="edit-user-name"
                     type="text"
                     className="form-control"
                     placeholder="Enter name"
@@ -108,11 +109,12 @@ const UserEditScreen = () => {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">
-                    <FiMail size={14} style={{ marginRight: "0.4rem", verticalAlign: "middle" }} />
+                  <label htmlFor="edit-user-email" className="form-label">
+                    <FiMail size={14} aria-hidden="true" style={{ marginRight: "0.4rem", verticalAlign: "middle" }} />
                     Email Address
                   </label>
                   <input
+                    id="edit-user-email"
                     type="email"
                     className="form-control"
                     placeholder="Enter email"

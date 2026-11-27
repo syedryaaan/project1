@@ -5,7 +5,6 @@ import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
 import { FiTrash2, FiMinus, FiPlus, FiShoppingBag, FiArrowRight } from "react-icons/fi";
 import { toast } from "react-toastify";
 import { addToCart, removeFromCart } from "../actions/cartActions";
-import Message from "../components/Message";
 import Meta from "../components/Meta";
 
 const CartScreen = () => {
@@ -17,6 +16,7 @@ const CartScreen = () => {
   const qty = location.search ? Number(new URLSearchParams(location.search).get("qty")) || 1 : 1;
 
   const { cartItems } = useSelector((s) => s.cart);
+  const { userInfo } = useSelector((s) => s.userLogin);
 
   useEffect(() => {
     if (productId) dispatch(addToCart(productId, qty));
@@ -45,13 +45,13 @@ const CartScreen = () => {
 
         {cartItems.length === 0 ? (
           <div style={{ textAlign: "center", padding: "5rem 1.5rem" }}>
-            <div style={{ fontSize: "5rem", marginBottom: "1.5rem" }}>🛒</div>
+            <div style={{ fontSize: "5rem", marginBottom: "1.5rem" }} aria-hidden="true">🛒</div>
             <h2>Your cart is empty</h2>
             <p style={{ color: "var(--text-muted)", marginTop: "0.5rem", marginBottom: "2rem" }}>
               Looks like you haven't added anything yet. Explore our products!
             </p>
             <Link to="/" className="btn-primary">
-              <FiShoppingBag size={16} /> Start Shopping
+              <FiShoppingBag size={16} aria-hidden="true" /> Start Shopping
             </Link>
           </div>
         ) : (
@@ -67,27 +67,16 @@ const CartScreen = () => {
             {/* Cart Items */}
             <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
               {cartItems.map((item) => (
-                <div
-                  key={item.product}
-                  style={{
-                    background: "var(--bg-card)",
-                    border: "1px solid var(--border-color)",
-                    borderRadius: "var(--radius-md)",
-                    padding: "1.25rem",
-                    display: "grid",
-                    gridTemplateColumns: "80px 1fr auto",
-                    gap: "1.25rem",
-                    alignItems: "center",
-                  }}
-                >
+                <div key={item.product} className="cart-item-card">
                   {/* Image */}
                   <Link to={`/product/${item.product}`}>
                     <img
                       src={item.image}
                       alt={item.name}
+                      loading="lazy"
                       style={{
-                        width: 80,
-                        height: 80,
+                        width: "100%",
+                        aspectRatio: "1",
                         objectFit: "cover",
                         borderRadius: "var(--radius-sm)",
                         background: "var(--bg-secondary)",
@@ -108,37 +97,44 @@ const CartScreen = () => {
                     </div>
 
                     {/* Qty Controls */}
-                    <div style={{ display: "flex", alignItems: "center", gap: 0, marginTop: "0.75rem", border: "1px solid var(--border-color)", borderRadius: "var(--radius-sm)", width: "fit-content", overflow: "hidden" }}>
+                    <div style={{ display: "flex", alignItems: "center", marginTop: "0.75rem", border: "1px solid var(--border-color)", borderRadius: "var(--radius-sm)", width: "fit-content", overflow: "hidden" }}>
                       <button
+                        type="button"
                         onClick={() => updateQty(item, item.qty - 1)}
-                        style={{ padding: "0.3rem 0.6rem", background: "transparent", border: "none", cursor: "pointer", color: "var(--text-primary)" }}
+                        disabled={item.qty <= 1}
+                        aria-label={`Decrease quantity for ${item.name}`}
+                        style={{ padding: "0.3rem 0.6rem", background: "transparent", border: "none", cursor: item.qty <= 1 ? "not-allowed" : "pointer", color: "var(--text-primary)", opacity: item.qty <= 1 ? 0.4 : 1 }}
                       >
-                        <FiMinus size={12} />
+                        <FiMinus size={12} aria-hidden="true" />
                       </button>
                       <span style={{ padding: "0.3rem 0.75rem", fontWeight: 700, background: "var(--bg-secondary)", fontSize: "0.875rem" }}>
                         {item.qty}
                       </span>
                       <button
+                        type="button"
                         onClick={() => updateQty(item, item.qty + 1)}
                         disabled={item.qty >= item.countInStock}
-                        style={{ padding: "0.3rem 0.6rem", background: "transparent", border: "none", cursor: "pointer", color: "var(--text-primary)", opacity: item.qty >= item.countInStock ? 0.4 : 1 }}
+                        aria-label={`Increase quantity for ${item.name}`}
+                        style={{ padding: "0.3rem 0.6rem", background: "transparent", border: "none", cursor: item.qty >= item.countInStock ? "not-allowed" : "pointer", color: "var(--text-primary)", opacity: item.qty >= item.countInStock ? 0.4 : 1 }}
                       >
-                        <FiPlus size={12} />
+                        <FiPlus size={12} aria-hidden="true" />
                       </button>
                     </div>
                   </div>
 
                   {/* Price + Remove */}
-                  <div style={{ textAlign: "right", display: "flex", flexDirection: "column", gap: "0.75rem", alignItems: "flex-end" }}>
+                  <div className="cart-item-actions" style={{ textAlign: "right", display: "flex", flexDirection: "column", gap: "0.75rem", alignItems: "flex-end" }}>
                     <span style={{ fontWeight: 800, fontSize: "1.1rem" }}>
                       ${(item.qty * item.price).toFixed(2)}
                     </span>
                     <button
+                      type="button"
                       onClick={() => removeHandler(item.product)}
                       className="btn-danger"
+                      aria-label={`Remove ${item.name} from cart`}
                       style={{ padding: "0.4rem 0.75rem", fontSize: "0.8rem" }}
                     >
-                      <FiTrash2 size={13} />
+                      <FiTrash2 size={13} aria-hidden="true" />
                     </button>
                   </div>
                 </div>
@@ -156,7 +152,7 @@ const CartScreen = () => {
                 top: "calc(var(--header-height) + var(--announcement-height) + 1rem)",
               }}
             >
-              <h3 style={{ fontWeight: 800, marginBottom: "1.5rem" }}>Order Summary</h3>
+              <h2 style={{ fontWeight: 800, marginBottom: "1.5rem", fontSize: "1.25rem" }}>Order Summary</h2>
 
               {[
                 { label: `Subtotal (${cartItems.reduce((a, i) => a + i.qty, 0)} items)`, value: `$${subtotal.toFixed(2)}` },
@@ -183,11 +179,14 @@ const CartScreen = () => {
               )}
 
               <button
+                type="button"
                 className="btn-primary btn-block"
-                onClick={() => navigate("/login?redirect=shipping")}
+                onClick={() =>
+                  navigate(userInfo ? "/shipping" : "/login?redirect=shipping")
+                }
                 style={{ marginTop: "0.5rem" }}
               >
-                Proceed to Checkout <FiArrowRight size={16} />
+                Proceed to Checkout <FiArrowRight size={16} aria-hidden="true" />
               </button>
 
               <Link

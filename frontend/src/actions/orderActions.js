@@ -128,7 +128,7 @@ export const payOrder = (orderId, paymentResult) => async (
   }
 };
 
-export const deliverOrder = (orderId) => async (dispatch, getState) => {
+export const deliverOrder = (orderOrId) => async (dispatch, getState) => {
   try {
     dispatch({
       type: ORDER_DELIVER_REQUEST,
@@ -137,6 +137,8 @@ export const deliverOrder = (orderId) => async (dispatch, getState) => {
     const {
       userLogin: { userInfo },
     } = getState();
+
+    const orderId = typeof orderOrId === "object" ? orderOrId._id : orderOrId;
 
     const config = {
       headers: {

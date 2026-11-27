@@ -15,43 +15,42 @@ const Footer = () => {
             Premium tech & lifestyle products curated for the modern explorer.
             Quality, style, and innovation — delivered to your door.
           </p>
-          <div style={{ display: "flex", gap: "0.75rem", marginTop: "1.5rem" }}>
-            {["Twitter", "Instagram", "GitHub"].map((social) => (
-              <a
-                key={social}
-                href="#!"
-                style={{
-                  background: "var(--bg-elevated)",
-                  border: "1px solid var(--border-color)",
-                  borderRadius: "var(--radius-sm)",
-                  padding: "0.5rem 0.75rem",
-                  fontSize: "0.75rem",
-                  color: "var(--text-secondary)",
-                  textDecoration: "none",
-                  transition: "all var(--transition-fast)",
-                }}
-              >
-                {social}
-              </a>
-            ))}
+          <div style={{ display: "flex", gap: "0.75rem", marginTop: "1.5rem", flexWrap: "wrap" }}>
+            <a
+              href="https://github.com/syedryaaan/project1"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                background: "var(--bg-elevated)",
+                border: "1px solid var(--border-color)",
+                borderRadius: "var(--radius-sm)",
+                padding: "0.5rem 0.75rem",
+                fontSize: "0.75rem",
+                color: "var(--text-secondary)",
+                textDecoration: "none",
+                transition: "all var(--transition-fast)",
+              }}
+            >
+              GitHub Repository
+            </a>
           </div>
         </div>
 
         {/* Shop Column */}
         <div>
-          <h4 className="footer-heading">Shop</h4>
+          <h3 className="footer-heading">Shop</h3>
           <ul className="footer-links">
             <li><Link to="/">All Products</Link></li>
-            <li><Link to="/search/electronics">Electronics</Link></li>
-            <li><Link to="/search/audio">Audio</Link></li>
-            <li><Link to="/search/gaming">Gaming</Link></li>
-            <li><Link to="/search/photography">Photography</Link></li>
+            <li><Link to="/search/Electronics">Electronics</Link></li>
+            <li><Link to="/search/Audio">Audio</Link></li>
+            <li><Link to="/search/Gaming">Gaming</Link></li>
+            <li><Link to="/search/Photography">Photography</Link></li>
           </ul>
         </div>
 
         {/* Account Column */}
         <div>
-          <h4 className="footer-heading">Account</h4>
+          <h3 className="footer-heading">Account</h3>
           <ul className="footer-links">
             <li><Link to="/login">Sign In</Link></li>
             <li><Link to="/register">Create Account</Link></li>
@@ -62,13 +61,13 @@ const Footer = () => {
 
         {/* Support Column */}
         <div>
-          <h4 className="footer-heading">Support</h4>
+          <h3 className="footer-heading">Support</h3>
           <ul className="footer-links">
-            <li><a href="#!">Help Center</a></li>
-            <li><a href="#!">Track Order</a></li>
-            <li><a href="#!">Returns</a></li>
-            <li><a href="#!">Shipping Policy</a></li>
-            <li><a href="#!">Privacy Policy</a></li>
+            <li><Link to="/help">Help Center</Link></li>
+            <li><Link to="/profile">Track Order</Link></li>
+            <li><Link to="/returns">Returns</Link></li>
+            <li><Link to="/shipping-policy">Shipping Policy</Link></li>
+            <li><Link to="/privacy-policy">Privacy Policy</Link></li>
           </ul>
         </div>
       </div>
@@ -79,7 +78,11 @@ const Footer = () => {
         </p>
         <p className="footer-attribution">
           Built on{" "}
-          <a href="https://github.com/mariosknl/ProShop" target="_blank" rel="noreferrer">
+          <a
+            href="https://github.com/mariosknl/ProShop"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             ProShop
           </a>{" "}
           by Marios Kanellopoulos (MIT), tutorial by Brad Traversy.

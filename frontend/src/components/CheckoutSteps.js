@@ -13,7 +13,7 @@ const CheckoutSteps = ({ step1, step2, step3, step4 }) => {
   const enabled = [step1, step2, step3, step4];
 
   return (
-    <div className="checkout-steps">
+    <nav className="checkout-steps" aria-label="Checkout progress">
       {steps.map(({ label, step }, idx) => {
         const isActive = enabled[idx];
         const isDone = enabled.slice(idx + 1).some(Boolean);
@@ -22,9 +22,10 @@ const CheckoutSteps = ({ step1, step2, step3, step4 }) => {
           <React.Fragment key={step}>
             <div
               className={`checkout-step ${isDone ? "done" : ""} ${isActive && !isDone ? "active" : ""}`}
+              aria-current={isActive && !isDone ? "step" : undefined}
             >
               <div className="step-number">
-                {isDone ? <FiCheck size={14} /> : step}
+                {isDone ? <FiCheck size={14} aria-hidden="true" /> : step}
               </div>
               <span>{label}</span>
             </div>
@@ -32,7 +33,7 @@ const CheckoutSteps = ({ step1, step2, step3, step4 }) => {
           </React.Fragment>
         );
       })}
-    </div>
+    </nav>
   );
 };
 

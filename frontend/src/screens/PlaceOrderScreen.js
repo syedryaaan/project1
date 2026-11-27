@@ -25,7 +25,15 @@ const PlaceOrderScreen = () => {
   const totalPrice = itemsPrice + shippingPrice + taxPrice;
 
   useEffect(() => {
-    if (success) {
+    if (!shippingAddress?.address) {
+      navigate("/shipping");
+    } else if (!paymentMethod) {
+      navigate("/payment");
+    }
+  }, [shippingAddress, paymentMethod, navigate]);
+
+  useEffect(() => {
+    if (success && order?._id) {
       dispatch({ type: ORDER_CREATE_RESET });
       navigate(`/order/${order._id}`);
     }
@@ -57,12 +65,12 @@ const PlaceOrderScreen = () => {
             {/* Shipping */}
             <div className="card">
               <div className="card-header" style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                <FiMapPin color="var(--brand-primary)" /> Shipping Address
+                <FiMapPin color="var(--brand-primary)" aria-hidden="true" /> Shipping Address
               </div>
               <div className="card-body">
                 <p style={{ color: "var(--text-secondary)" }}>
-                  {shippingAddress.address}, {shippingAddress.city}{" "}
-                  {shippingAddress.postalCode}, {shippingAddress.country}
+                  {shippingAddress?.address}, {shippingAddress?.city}{" "}
+                  {shippingAddress?.postalCode}, {shippingAddress?.country}
                 </p>
               </div>
             </div>
@@ -70,28 +78,41 @@ const PlaceOrderScreen = () => {
             {/* Payment */}
             <div className="card">
               <div className="card-header" style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                <FiCreditCard color="var(--brand-primary)" /> Payment Method
+                <FiCreditCard color="var(--brand-primary)" aria-hidden="true" /> Payment Method
               </div>
               <div className="card-body">
-                <p style={{ color: "var(--text-secondary)" }}>{paymentMethod}</p>
+                <p style={{ color: "var(--text-secondary)" }}>{paymentMethod || "PayPal"}</p>
               </div>
             </div>
 
             {/* Items */}
             <div className="card">
               <div className="card-header" style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                <FiPackage color="var(--brand-primary)" /> Order Items
+                <FiPackage color="var(--brand-primary)" aria-hidden="true" /> Order Items
               </div>
               <div className="card-body" style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                {cartItems.map((item) => (
-                  <div key={item.product} style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                    <img src={item.image} alt={item.name} style={{ width: 48, height: 48, objectFit: "cover", borderRadius: "var(--radius-sm)" }} />
-                    <Link to={`/product/${item.product}`} style={{ flex: 1, fontSize: "0.875rem", fontWeight: 600 }}>{item.name}</Link>
-                    <span style={{ color: "var(--text-muted)", fontSize: "0.875rem", whiteSpace: "nowrap" }}>
-                      {item.qty} × ${item.price.toFixed(2)} = ${(item.qty * item.price).toFixed(2)}
-                    </span>
-                  </div>
-                ))}
+                {cartItems.length === 0 ? (
+                  <Message variant="info">
+                    Your cart is empty. <Link to="/">Browse products</Link>
+                  </Message>
+                ) : (
+                  cartItems.map((item) => (
+                    <div key={item.product} style={{ display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        loading="lazy"
+                        style={{ width: 48, height: 48, objectFit: "cover", borderRadius: "var(--radius-sm)" }}
+                      />
+                      <Link to={`/product/${item.product}`} style={{ flex: 1, minWidth: 140, fontSize: "0.875rem", fontWeight: 600 }}>
+                        {item.name}
+                      </Link>
+                      <span style={{ color: "var(--text-muted)", fontSize: "0.875rem", whiteSpace: "nowrap" }}>
+                        {item.qty} × ${item.price.toFixed(2)} = ${(item.qty * item.price).toFixed(2)}
+                      </span>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           </div>
@@ -118,6 +139,7 @@ const PlaceOrderScreen = () => {
               {loading && <Loader message="Placing order..." />}
 
               <button
+                type="button"
                 className="btn-primary btn-block"
                 onClick={handlePlaceOrder}
                 disabled={cartItems.length === 0 || loading}

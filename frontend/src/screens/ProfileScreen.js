@@ -1,7 +1,7 @@
 // NexaStore — Profile Screen (RRD v6)
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FiUser, FiMail, FiLock, FiPackage, FiEdit } from "react-icons/fi";
 import { toast } from "react-toastify";
 
@@ -26,7 +26,10 @@ const ProfileScreen = () => {
   const { loading: ordersLoading, orders } = useSelector((s) => s.orderListMy);
 
   useEffect(() => {
-    if (!userInfo) { navigate("/login"); return; }
+    if (!userInfo) {
+      navigate("/login");
+      return;
+    }
     if (!user || !user.name) {
       dispatch(getUserDetails("profile"));
       dispatch(listMyOrders());
@@ -43,10 +46,17 @@ const ProfileScreen = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (password && password !== confirmPassword) { toast.error("Passwords do not match"); return; }
-    if (password && password.length < 6) { toast.error("Password must be at least 6 characters"); return; }
+    if (password && password !== confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+    if (password && password.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
     dispatch(updateUserProfile({ id: user._id, name, email, password }));
-    setPassword(""); setConfirmPassword("");
+    setPassword("");
+    setConfirmPassword("");
   };
 
   if (!userInfo) return null;
@@ -58,42 +68,87 @@ const ProfileScreen = () => {
         <div style={{ display: "grid", gridTemplateColumns: "340px 1fr", gap: "2rem", alignItems: "start" }} className="profile-layout">
           {/* Profile Form */}
           <div className="form-card">
-            <h2 style={{ display: "flex", alignItems: "center", gap: "0.75rem", fontWeight: 800, marginBottom: "2rem" }}>
-              <FiUser color="var(--brand-primary)" /> My Profile
-            </h2>
+            <h1 style={{ display: "flex", alignItems: "center", gap: "0.75rem", fontWeight: 800, marginBottom: "2rem", fontSize: "1.5rem" }}>
+              <FiUser color="var(--brand-primary)" aria-hidden="true" /> My Profile
+            </h1>
             {loading && <Loader message="Loading..." />}
             <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column" }}>
               <div className="form-group">
-                <label className="form-label"><FiUser size={13} style={{ marginRight: "0.4rem" }} />Name</label>
-                <input type="text" className="form-control" value={name} onChange={(e) => setName(e.target.value)} />
+                <label htmlFor="profile-name" className="form-label">
+                  <FiUser size={13} aria-hidden="true" style={{ marginRight: "0.4rem" }} />Name
+                </label>
+                <input
+                  id="profile-name"
+                  type="text"
+                  className="form-control"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  autoComplete="name"
+                  required
+                />
               </div>
               <div className="form-group">
-                <label className="form-label"><FiMail size={13} style={{ marginRight: "0.4rem" }} />Email</label>
-                <input type="email" className="form-control" value={email} onChange={(e) => setEmail(e.target.value)} />
+                <label htmlFor="profile-email" className="form-label">
+                  <FiMail size={13} aria-hidden="true" style={{ marginRight: "0.4rem" }} />Email
+                </label>
+                <input
+                  id="profile-email"
+                  type="email"
+                  className="form-control"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  autoComplete="email"
+                  required
+                />
               </div>
               <div className="form-group">
-                <label className="form-label"><FiLock size={13} style={{ marginRight: "0.4rem" }} />New Password</label>
-                <input type="password" className="form-control" placeholder="Leave blank to keep current" value={password} onChange={(e) => setPassword(e.target.value)} />
+                <label htmlFor="profile-password" className="form-label">
+                  <FiLock size={13} aria-hidden="true" style={{ marginRight: "0.4rem" }} />New Password
+                </label>
+                <input
+                  id="profile-password"
+                  type="password"
+                  className="form-control"
+                  placeholder="Leave blank to keep current"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="new-password"
+                />
               </div>
               <div className="form-group">
-                <label className="form-label"><FiLock size={13} style={{ marginRight: "0.4rem" }} />Confirm Password</label>
-                <input type="password" className="form-control" placeholder="Repeat new password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+                <label htmlFor="profile-confirm" className="form-label">
+                  <FiLock size={13} aria-hidden="true" style={{ marginRight: "0.4rem" }} />Confirm Password
+                </label>
+                <input
+                  id="profile-confirm"
+                  type="password"
+                  className="form-control"
+                  placeholder="Repeat new password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  autoComplete="new-password"
+                />
               </div>
               <button type="submit" className="btn-primary btn-block" disabled={loading}>
-                <FiEdit size={15} /> Update Profile
+                <FiEdit size={15} aria-hidden="true" /> Update Profile
               </button>
             </form>
           </div>
 
           {/* Order History */}
-          <div>
+          <section id="orders" aria-label="My Orders">
             <h2 style={{ display: "flex", alignItems: "center", gap: "0.75rem", fontWeight: 800, marginBottom: "1.5rem" }}>
-              <FiPackage color="var(--brand-primary)" /> My Orders
+              <FiPackage color="var(--brand-primary)" aria-hidden="true" /> My Orders
             </h2>
             {ordersLoading ? (
               <Loader message="Loading orders..." />
             ) : !orders || orders.length === 0 ? (
-              <Message variant="info">You have no orders yet. <a href="/" style={{ color: "var(--brand-primary)" }}>Start shopping!</a></Message>
+              <Message variant="info">
+                You have no orders yet.{" "}
+                <Link to="/" style={{ color: "var(--brand-primary)", fontWeight: 600 }}>
+                  Start shopping!
+                </Link>
+              </Message>
             ) : (
               <div className="table-container">
                 <table>
@@ -110,7 +165,9 @@ const ProfileScreen = () => {
                   <tbody>
                     {orders.map((order) => (
                       <tr key={order._id}>
-                        <td style={{ fontFamily: "monospace", fontSize: "0.8rem" }}>{order._id.substring(0, 8).toUpperCase()}</td>
+                        <td style={{ fontFamily: "monospace", fontSize: "0.8rem" }}>
+                          {order._id.substring(0, 8).toUpperCase()}
+                        </td>
                         <td>{new Date(order.createdAt).toLocaleDateString()}</td>
                         <td style={{ fontWeight: 700 }}>${Number(order.totalPrice).toFixed(2)}</td>
                         <td>
@@ -124,9 +181,13 @@ const ProfileScreen = () => {
                           </span>
                         </td>
                         <td>
-                          <a href={`/order/${order._id}`} className="btn-secondary btn-sm" style={{ display: "inline-flex" }}>
+                          <Link
+                            to={`/order/${order._id}`}
+                            className="btn-secondary btn-sm"
+                            style={{ display: "inline-flex" }}
+                          >
                             Details
-                          </a>
+                          </Link>
                         </td>
                       </tr>
                     ))}
@@ -134,7 +195,7 @@ const ProfileScreen = () => {
                 </table>
               </div>
             )}
-          </div>
+          </section>
         </div>
       </div>
       <style>{`

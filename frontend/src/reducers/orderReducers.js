@@ -148,16 +148,23 @@ export const orderListReducer = (state = { orders: [] }, action) => {
     case ORDERS_LIST_REQUEST:
       return {
         loading: true,
+        orders: [],
       };
     case ORDERS_LIST_SUCCESS:
       return {
         loading: false,
-        orders: action.payload,
+        orders: Array.isArray(action.payload)
+          ? action.payload
+          : action.payload?.orders || [],
+        page: action.payload?.page,
+        pages: action.payload?.pages,
+        count: action.payload?.count,
       };
     case ORDERS_LIST_FAIL:
       return {
         loading: false,
         error: action.payload,
+        orders: [],
       };
     default:
       return state;

@@ -11,7 +11,6 @@ import {
   FiAlertTriangle,
   FiTrendingUp,
   FiPackage,
-  FiCheckCircle,
 } from "react-icons/fi";
 import AdminNav from "../components/AdminNav";
 import Loader from "../components/Loader";

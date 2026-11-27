@@ -4,14 +4,25 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import {
-  FiShoppingCart, FiHeart, FiStar, FiMinus, FiPlus, FiArrowLeft,
-  FiCheck, FiTruck, FiShield,
+  FiShoppingCart,
+  FiHeart,
+  FiStar,
+  FiMinus,
+  FiPlus,
+  FiArrowLeft,
+  FiCheck,
+  FiTruck,
+  FiShield,
 } from "react-icons/fi";
 
 import Rating from "../components/Rating";
-import { listProductDetails, createProductReview } from "../actions/productActions";
+import {
+  listProductDetails,
+  createProductReview,
+} from "../actions/productActions";
 import { PRODUCT_CREATE_REVIEW_RESET } from "../constants/productConstants";
 import { addToCart } from "../actions/cartActions";
+import { isProductWishlisted, toggleWishlistItem } from "../utils/wishlist";
 import Loader from "../components/Loader";
 import Message from "../components/Message";
 import Meta from "../components/Meta";
@@ -24,6 +35,7 @@ const ProductScreen = () => {
   const [qty, setQty] = useState(1);
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
+  const [wishlisted, setWishlisted] = useState(() => isProductWishlisted(id));
 
   const { loading, error, product } = useSelector((s) => s.productDetails);
   const { error: reviewError, success: reviewSuccess } = useSelector(
@@ -41,9 +53,32 @@ const ProductScreen = () => {
     dispatch(listProductDetails(id));
   }, [dispatch, id, reviewSuccess]);
 
+  useEffect(() => {
+    setWishlisted(isProductWishlisted(id));
+  }, [id]);
+
+  if (error) {
+    return (
+      <div className="container-custom" style={{ paddingTop: "2rem", paddingBottom: "4rem" }}>
+        <Message variant="danger">{error}</Message>
+      </div>
+    );
+  }
+  if (loading || !product?._id) {
+    return (
+      <div className="container-custom">
+        <Loader />
+      </div>
+    );
+  }
+
   const handleAddToCart = () => {
     dispatch(addToCart(id, qty));
-    toast.success(`${product.name.substring(0, 30)}... added to cart!`);
+    const shortName =
+      product.name.length > 30
+        ? `${product.name.substring(0, 30)}...`
+        : product.name;
+    toast.success(`${shortName} added to cart!`);
   };
 
   const handleBuyNow = () => {
@@ -51,10 +86,27 @@ const ProductScreen = () => {
     navigate("/cart");
   };
 
+  const handleWishlist = () => {
+    if (!userInfo) {
+      toast.info("Sign in to save items to your wishlist");
+      navigate("/login");
+      return;
+    }
+    const { added } = toggleWishlistItem(product);
+    setWishlisted(added);
+    toast.success(added ? "Added to wishlist!" : "Removed from wishlist");
+  };
+
   const handleReview = (e) => {
     e.preventDefault();
-    if (!rating) { toast.error("Please select a rating"); return; }
-    if (!comment.trim()) { toast.error("Please write a comment"); return; }
+    if (!rating) {
+      toast.error("Please select a rating");
+      return;
+    }
+    if (!comment.trim()) {
+      toast.error("Please write a comment");
+      return;
+    }
     dispatch(createProductReview(id, { rating, comment }));
   };
 
@@ -68,12 +120,9 @@ const ProductScreen = () => {
     ? product.price * (1 - product.discount / 100)
     : null;
 
-  if (loading) return <div className="container-custom"><Loader /></div>;
-  if (error) return <div className="container-custom"><Message variant="danger">{error}</Message></div>;
-
   return (
     <>
-      <Meta title={product.name} />
+      <Meta title={product.name} description={product.description} />
       <div className="container-custom" style={{ paddingTop: "2rem", paddingBottom: "4rem" }}>
         {/* Back */}
         <Link
@@ -81,7 +130,7 @@ const ProductScreen = () => {
           className="btn-secondary btn-sm"
           style={{ display: "inline-flex", marginBottom: "2rem" }}
         >
-          <FiArrowLeft size={15} /> Back to Products
+          <FiArrowLeft size={15} aria-hidden="true" /> Back to Products
         </Link>
 
         <div
@@ -135,7 +184,7 @@ const ProductScreen = () => {
             </div>
 
             {/* Price */}
-            <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>
               <span style={{ fontSize: "2rem", fontWeight: 800 }}>
                 ${(discountedPrice ?? product.price).toFixed(2)}
               </span>
@@ -166,39 +215,41 @@ const ProductScreen = () => {
                 gap: "1rem",
               }}
             >
-              {/* Stock Status */}
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <span style={{ color: "var(--text-secondary)", fontSize: "0.875rem" }}>Availability</span>
                 {product.countInStock > 0 ? (
                   <span style={{ display: "flex", alignItems: "center", gap: "0.4rem", color: "#22C55E", fontWeight: 600, fontSize: "0.875rem" }}>
-                    <FiCheck size={14} /> In Stock ({product.countInStock} left)
+                    <FiCheck size={14} aria-hidden="true" /> In Stock ({product.countInStock} left)
                   </span>
                 ) : (
                   <span style={{ color: "#EF4444", fontWeight: 600, fontSize: "0.875rem" }}>Out of Stock</span>
                 )}
               </div>
 
-              {/* Qty Selector */}
               {product.countInStock > 0 && (
                 <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
                   <span style={{ color: "var(--text-secondary)", fontSize: "0.875rem" }}>Quantity</span>
-                  <div style={{ display: "flex", alignItems: "center", gap: "0", border: "1px solid var(--border-color)", borderRadius: "var(--radius-sm)", overflow: "hidden" }}>
+                  <div style={{ display: "flex", alignItems: "center", border: "1px solid var(--border-color)", borderRadius: "var(--radius-sm)", overflow: "hidden" }}>
                     <button
+                      type="button"
                       onClick={() => changeQty(-1)}
                       disabled={qty <= 1}
+                      aria-label="Decrease quantity"
                       style={{ padding: "0.5rem 0.75rem", background: "transparent", border: "none", color: "var(--text-primary)", cursor: qty <= 1 ? "not-allowed" : "pointer", opacity: qty <= 1 ? 0.4 : 1 }}
                     >
-                      <FiMinus size={14} />
+                      <FiMinus size={14} aria-hidden="true" />
                     </button>
                     <span style={{ padding: "0.5rem 1rem", fontWeight: 700, background: "var(--bg-secondary)", minWidth: "50px", textAlign: "center" }}>
                       {qty}
                     </span>
                     <button
+                      type="button"
                       onClick={() => changeQty(1)}
                       disabled={qty >= product.countInStock}
+                      aria-label="Increase quantity"
                       style={{ padding: "0.5rem 0.75rem", background: "transparent", border: "none", color: "var(--text-primary)", cursor: qty >= product.countInStock ? "not-allowed" : "pointer", opacity: qty >= product.countInStock ? 0.4 : 1 }}
                     >
-                      <FiPlus size={14} />
+                      <FiPlus size={14} aria-hidden="true" />
                     </button>
                   </div>
                 </div>
@@ -208,25 +259,34 @@ const ProductScreen = () => {
             {/* Actions */}
             <div style={{ display: "flex", gap: "0.75rem" }}>
               <button
+                type="button"
                 className="btn-primary"
-                style={{ flex: 2 }}
+                style={{ flex: 2, justifyContent: "center" }}
                 onClick={handleAddToCart}
                 disabled={product.countInStock === 0}
               >
-                <FiShoppingCart size={16} />
+                <FiShoppingCart size={16} aria-hidden="true" />
                 {product.countInStock === 0 ? "Out of Stock" : "Add to Cart"}
               </button>
               <button
+                type="button"
                 className="btn-secondary"
-                style={{ flex: 1 }}
-                onClick={() => toast.success("Added to wishlist!")}
+                style={{ flex: 1, justifyContent: "center" }}
+                onClick={handleWishlist}
+                aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
+                aria-pressed={wishlisted}
               >
-                <FiHeart size={16} />
+                <FiHeart
+                  size={16}
+                  aria-hidden="true"
+                  fill={wishlisted ? "var(--brand-secondary)" : "none"}
+                  color={wishlisted ? "var(--brand-secondary)" : "currentColor"}
+                />
               </button>
             </div>
 
             {product.countInStock > 0 && (
-              <button className="btn-secondary btn-block" onClick={handleBuyNow}>
+              <button type="button" className="btn-secondary btn-block" onClick={handleBuyNow}>
                 Buy Now →
               </button>
             )}
@@ -234,8 +294,8 @@ const ProductScreen = () => {
             {/* Trust Badges */}
             <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
               {[
-                { icon: <FiTruck size={14} />, text: "Free shipping over $100" },
-                { icon: <FiShield size={14} />, text: "2-year warranty" },
+                { icon: <FiTruck size={14} aria-hidden="true" />, text: "Free shipping over $100" },
+                { icon: <FiShield size={14} aria-hidden="true" />, text: "2-year warranty" },
               ].map((b) => (
                 <div
                   key={b.text}
@@ -249,7 +309,7 @@ const ProductScreen = () => {
         </div>
 
         {/* ── Reviews ── */}
-        <div style={{ marginTop: "4rem" }}>
+        <section style={{ marginTop: "4rem" }} aria-label="Customer reviews">
           <h2 style={{ fontSize: "1.5rem", fontWeight: 800, marginBottom: "2rem" }}>
             Customer Reviews ({product.numReviews})
           </h2>
@@ -258,7 +318,7 @@ const ProductScreen = () => {
             <Message variant="info">No reviews yet. Be the first to review!</Message>
           )}
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem", alignItems: "start" }}>
+          <div className="reviews-grid">
             {/* Review List */}
             <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
               {product.reviews?.map((review) => (
@@ -299,13 +359,15 @@ const ProductScreen = () => {
               {userInfo ? (
                 <form onSubmit={handleReview} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
                   <div className="form-group">
-                    <label className="form-label">Rating</label>
-                    <div style={{ display: "flex", gap: "0.5rem" }}>
+                    <span className="form-label" id="review-rating-label">Rating</span>
+                    <div role="radiogroup" aria-labelledby="review-rating-label" style={{ display: "flex", gap: "0.5rem" }}>
                       {[1, 2, 3, 4, 5].map((r) => (
                         <button
                           key={r}
                           type="button"
                           onClick={() => setRating(r)}
+                          aria-label={`Rate ${r} out of 5 stars`}
+                          aria-pressed={rating === r}
                           style={{
                             background: "transparent",
                             border: "none",
@@ -321,8 +383,9 @@ const ProductScreen = () => {
                     </div>
                   </div>
                   <div className="form-group">
-                    <label className="form-label">Comment</label>
+                    <label htmlFor="review-comment" className="form-label">Comment</label>
                     <textarea
+                      id="review-comment"
                       className="form-control"
                       rows="4"
                       value={comment}
@@ -331,7 +394,7 @@ const ProductScreen = () => {
                     />
                   </div>
                   <button type="submit" className="btn-primary">
-                    <FiStar size={15} /> Submit Review
+                    <FiStar size={15} aria-hidden="true" /> Submit Review
                   </button>
                 </form>
               ) : (
@@ -345,7 +408,7 @@ const ProductScreen = () => {
               )}
             </div>
           </div>
-        </div>
+        </section>
       </div>
 
       <style>{`

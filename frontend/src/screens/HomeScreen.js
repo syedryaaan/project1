@@ -1,13 +1,13 @@
 // NexaStore — Premium Home Screen
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { FiArrowRight, FiZap, FiShield, FiTruck } from "react-icons/fi";
+import { toast } from "react-toastify";
 
 import ProductCard from "../components/ProductCard";
 import { listProducts } from "../actions/productActions";
 import Message from "../components/Message";
-import Loader from "../components/Loader";
 import Paginate from "../components/Paginate";
 import Meta from "../components/Meta";
 
@@ -21,13 +21,13 @@ const CATEGORIES = [
 ];
 
 const FEATURES = [
-  { icon: <FiTruck size={22} />, title: "Free Shipping", desc: "On orders over $100" },
-  { icon: <FiShield size={22} />, title: "2-Year Warranty", desc: "On all products" },
-  { icon: <FiZap size={22} />, title: "Fast Delivery", desc: "2-5 business days" },
+  { icon: <FiTruck size={22} aria-hidden="true" />, title: "Free Shipping", desc: "On orders over $100" },
+  { icon: <FiShield size={22} aria-hidden="true" />, title: "2-Year Warranty", desc: "On all products" },
+  { icon: <FiZap size={22} aria-hidden="true" />, title: "Fast Delivery", desc: "2-5 business days" },
 ];
 
 const SkeletonCard = () => (
-  <div className="skeleton-card">
+  <div className="skeleton-card" aria-hidden="true">
     <div className="skeleton" style={{ aspectRatio: "1", width: "100%" }} />
     <div style={{ padding: "1.25rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
       <div className="skeleton" style={{ height: 12, width: "60%" }} />
@@ -41,6 +41,7 @@ const SkeletonCard = () => (
 const HomeScreen = () => {
   const { keyword, pageNumber = 1 } = useParams();
   const dispatch = useDispatch();
+  const [newsletterEmail, setNewsletterEmail] = useState("");
 
   const { loading, error, products, page, pages } = useSelector(
     (s) => s.productList
@@ -49,6 +50,17 @@ const HomeScreen = () => {
   useEffect(() => {
     dispatch(listProducts(keyword, pageNumber));
   }, [dispatch, keyword, pageNumber]);
+
+  const handleNewsletterSubmit = (e) => {
+    e.preventDefault();
+    const trimmed = newsletterEmail.trim();
+    if (!trimmed || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+    toast.success("Subscribed! Watch your inbox for exclusive NexaStore deals.");
+    setNewsletterEmail("");
+  };
 
   return (
     <>
@@ -59,7 +71,9 @@ const HomeScreen = () => {
         <section className="hero-section">
           <div className="hero-content">
             <div>
-              <div className="hero-badge">🔥 New Collection 2024</div>
+              <div className="hero-badge">
+                🔥 New Collection {new Date().getFullYear()}
+              </div>
               <h1 className="hero-title">
                 Tech That Elevates{" "}
                 <span className="gradient-text">Your Lifestyle</span>
@@ -69,12 +83,12 @@ const HomeScreen = () => {
                 Discover the future of technology — delivered to your door.
               </p>
               <div className="hero-actions">
-                <Link to="#products" className="btn-primary">
-                  Shop Now <FiArrowRight size={16} />
-                </Link>
-                <Link to="#categories" className="btn-secondary">
+                <a href="#products" className="btn-primary">
+                  Shop Now <FiArrowRight size={16} aria-hidden="true" />
+                </a>
+                <a href="#categories" className="btn-secondary">
                   Browse Categories
-                </Link>
+                </a>
               </div>
               <div className="hero-stats">
                 {[
@@ -89,7 +103,7 @@ const HomeScreen = () => {
                 ))}
               </div>
             </div>
-            <div className="hero-image-wrap">
+            <div className="hero-image-wrap" aria-hidden="true">
               <div
                 style={{
                   background: "linear-gradient(135deg, rgba(108,99,255,0.2), rgba(255,107,107,0.1))",
@@ -98,7 +112,7 @@ const HomeScreen = () => {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontSize: "12rem",
+                  fontSize: "clamp(6rem, 15vw, 12rem)",
                   border: "1px solid var(--border-color)",
                 }}
               >
@@ -111,7 +125,14 @@ const HomeScreen = () => {
 
       {/* ── Feature Strip ── */}
       {!keyword && (
-        <section style={{ background: "var(--bg-secondary)", padding: "2rem 0", borderBottom: "1px solid var(--border-color)" }}>
+        <section
+          aria-label="Store benefits"
+          style={{
+            background: "var(--bg-secondary)",
+            padding: "2rem 0",
+            borderBottom: "1px solid var(--border-color)",
+          }}
+        >
           <div
             className="container-custom"
             style={{
@@ -160,7 +181,7 @@ const HomeScreen = () => {
                   to={`/search/${encodeURIComponent(cat.slug)}`}
                   className="category-card"
                 >
-                  <span className="category-icon">{cat.icon}</span>
+                  <span className="category-icon" aria-hidden="true">{cat.icon}</span>
                   <span className="category-name">{cat.name}</span>
                 </Link>
               ))}
@@ -175,7 +196,7 @@ const HomeScreen = () => {
               {keyword ? (
                 <>
                   <span className="section-label">Search Results</span>
-                  <h2 className="section-title">"{keyword}"</h2>
+                  <h1 className="section-title">"{keyword}"</h1>
                 </>
               ) : (
                 <>
@@ -214,7 +235,7 @@ const HomeScreen = () => {
                 color: "var(--text-muted)",
               }}
             >
-              <div style={{ fontSize: "4rem", marginBottom: "1rem" }}>🔍</div>
+              <div style={{ fontSize: "4rem", marginBottom: "1rem" }} aria-hidden="true">🔍</div>
               <h3>No products found</h3>
               <p style={{ marginTop: "0.5rem", marginBottom: "1.5rem" }}>
                 Try a different search term or browse our categories.
@@ -228,7 +249,7 @@ const HomeScreen = () => {
 
         {/* ── Newsletter ── */}
         {!keyword && (
-          <section className="newsletter-section">
+          <section className="newsletter-section" aria-label="Newsletter subscription">
             <span className="section-label">Stay Updated</span>
             <h2 style={{ fontSize: "clamp(1.5rem, 3vw, 2rem)", marginTop: "0.5rem" }}>
               Get Exclusive Deals First
@@ -237,14 +258,20 @@ const HomeScreen = () => {
               Subscribe to our newsletter and be the first to know about new arrivals,
               special offers, and tech news.
             </p>
-            <div className="newsletter-form">
+            <form className="newsletter-form" onSubmit={handleNewsletterSubmit} noValidate>
               <input
                 type="email"
+                aria-label="Email address for newsletter"
                 placeholder="Enter your email address"
                 className="newsletter-input"
+                value={newsletterEmail}
+                onChange={(e) => setNewsletterEmail(e.target.value)}
+                required
               />
-              <button className="btn-primary">Subscribe</button>
-            </div>
+              <button type="submit" className="btn-primary">
+                Subscribe
+              </button>
+            </form>
           </section>
         )}
       </div>

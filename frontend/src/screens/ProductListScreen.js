@@ -84,7 +84,7 @@ const ProductListScreen = () => {
       <div className="container-custom" style={{ paddingTop: "2rem", paddingBottom: "4rem" }}>
         <AdminNav />
 
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem", marginBottom: "1.5rem" }}>
           <div>
             <h2 style={{ fontSize: "1.5rem", fontWeight: 800 }}>Product Catalog</h2>
             <p style={{ color: "var(--text-muted)", fontSize: "0.875rem" }}>
@@ -92,12 +92,13 @@ const ProductListScreen = () => {
             </p>
           </div>
           <button
+            type="button"
             className="btn-primary"
             onClick={createProductHandler}
             disabled={loadingCreate}
             style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem" }}
           >
-            <FiPlus size={16} />
+            <FiPlus size={16} aria-hidden="true" />
             {loadingCreate ? "Creating..." : "Add Product"}
           </button>
         </div>
@@ -134,6 +135,7 @@ const ProductListScreen = () => {
                             <img
                               src={p.image}
                               alt={p.name}
+                              loading="lazy"
                               style={{ width: 44, height: 44, objectFit: "cover", borderRadius: "var(--radius-sm)" }}
                             />
                             <div>
@@ -166,17 +168,20 @@ const ProductListScreen = () => {
                               to={`/admin/product/${p._id}/edit`}
                               className="btn-secondary btn-sm"
                               style={{ padding: "0.35rem 0.65rem", display: "inline-flex", alignItems: "center" }}
-                              title="Edit"
+                              title={`Edit ${p.name}`}
+                              aria-label={`Edit ${p.name}`}
                             >
-                              <FiEdit size={14} />
+                              <FiEdit size={14} aria-hidden="true" />
                             </Link>
                             <button
+                              type="button"
                               onClick={() => deleteHandler(p._id, p.name)}
                               className="btn-danger"
                               style={{ padding: "0.35rem 0.65rem" }}
-                              title="Delete"
+                              title={`Delete ${p.name}`}
+                              aria-label={`Delete ${p.name}`}
                             >
-                              <FiTrash2 size={14} />
+                              <FiTrash2 size={14} aria-hidden="true" />
                             </button>
                           </div>
                         </td>

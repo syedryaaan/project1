@@ -31,35 +31,37 @@ const ShippingScreen = () => {
         <CheckoutSteps step1 step2 />
         <div style={{ maxWidth: 560, margin: "0 auto" }}>
           <div className="form-card">
-            <h2 style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.5rem", fontWeight: 800 }}>
-              <FiMapPin color="var(--brand-primary)" /> Shipping Address
-            </h2>
+            <h1 style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.5rem", fontWeight: 800, fontSize: "1.5rem" }}>
+              <FiMapPin color="var(--brand-primary)" aria-hidden="true" /> Shipping Address
+            </h1>
             <p style={{ color: "var(--text-muted)", fontSize: "0.875rem", marginBottom: "2rem" }}>
               Where should we deliver your order?
             </p>
 
-            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "0" }}>
+            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column" }}>
               {[
-                { label: "Street Address", value: address, setter: setAddress, placeholder: "123 Main St", type: "text" },
-                { label: "City", value: city, setter: setCity, placeholder: "New York", type: "text" },
-                { label: "Postal Code", value: postalCode, setter: setPostalCode, placeholder: "10001", type: "text" },
-                { label: "Country", value: country, setter: setCountry, placeholder: "United States", type: "text" },
+                { id: "ship-address", label: "Street Address", value: address, setter: setAddress, placeholder: "123 Main St", autoComplete: "street-address" },
+                { id: "ship-city", label: "City", value: city, setter: setCity, placeholder: "New York", autoComplete: "address-level2" },
+                { id: "ship-postal", label: "Postal Code", value: postalCode, setter: setPostalCode, placeholder: "10001", autoComplete: "postal-code" },
+                { id: "ship-country", label: "Country", value: country, setter: setCountry, placeholder: "United States", autoComplete: "country-name" },
               ].map((field) => (
-                <div key={field.label} className="form-group">
-                  <label className="form-label">{field.label}</label>
+                <div key={field.id} className="form-group">
+                  <label htmlFor={field.id} className="form-label">{field.label}</label>
                   <input
-                    type={field.type}
+                    id={field.id}
+                    type="text"
                     className="form-control"
                     placeholder={field.placeholder}
                     value={field.value}
                     onChange={(e) => field.setter(e.target.value)}
+                    autoComplete={field.autoComplete}
                     required
                   />
                 </div>
               ))}
 
               <button type="submit" className="btn-primary btn-block" style={{ marginTop: "0.5rem" }}>
-                Continue to Payment <FiArrowRight size={16} />
+                Continue to Payment <FiArrowRight size={16} aria-hidden="true" />
               </button>
             </form>
           </div>

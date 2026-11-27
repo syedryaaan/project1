@@ -22,8 +22,14 @@ const OrderScreen = () => {
   const { loading: loadingDeliver, success: successDeliver } = useSelector((s) => s.orderDeliver);
 
   useEffect(() => {
-    if (successPay) { dispatch({ type: ORDER_PAY_RESET }); toast.success("Payment successful! 🎉"); }
-    if (successDeliver) { dispatch({ type: ORDER_DELIVER_RESET }); toast.success("Order marked as delivered!"); }
+    if (successPay) {
+      dispatch({ type: ORDER_PAY_RESET });
+      toast.success("Payment successful! 🎉");
+    }
+    if (successDeliver) {
+      dispatch({ type: ORDER_DELIVER_RESET });
+      toast.success("Order marked as delivered!");
+    }
     dispatch(getOrderDetails(orderId));
   }, [dispatch, orderId, successPay, successDeliver]);
 
@@ -32,12 +38,37 @@ const OrderScreen = () => {
       dispatch(payOrder(orderId, details));
     });
 
-  const handleDeliver = () => dispatch(deliverOrder(order));
+  const handleDeliver = () => dispatch(deliverOrder(order._id));
 
-  if (loading || !order) return <div className="container-custom"><Loader /></div>;
-  if (error) return <div className="container-custom"><Message variant="danger">{error}</Message></div>;
+  if (error) {
+    return (
+      <div className="container-custom" style={{ paddingTop: "2rem", paddingBottom: "4rem" }}>
+        <Message variant="danger">{error}</Message>
+      </div>
+    );
+  }
+  if (loading || !order?._id) {
+    return (
+      <div className="container-custom">
+        <Loader />
+      </div>
+    );
+  }
 
-  const { orderItems, shippingAddress, paymentMethod, paymentResult, itemsPrice, shippingPrice, taxPrice, totalPrice, isPaid, paidAt, isDelivered, deliveredAt, status } = order;
+  const {
+    orderItems,
+    shippingAddress,
+    paymentMethod,
+    itemsPrice,
+    shippingPrice,
+    taxPrice,
+    totalPrice,
+    isPaid,
+    paidAt,
+    isDelivered,
+    deliveredAt,
+    status,
+  } = order;
 
   return (
     <>
@@ -55,7 +86,7 @@ const OrderScreen = () => {
             {/* Shipping */}
             <div className="card">
               <div className="card-header" style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                <FiMapPin color="var(--brand-primary)" /> Shipping
+                <FiMapPin color="var(--brand-primary)" aria-hidden="true" /> Shipping
               </div>
               <div className="card-body">
                 <p style={{ color: "var(--text-secondary)", marginBottom: "0.75rem" }}>
@@ -72,7 +103,7 @@ const OrderScreen = () => {
             {/* Payment */}
             <div className="card">
               <div className="card-header" style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                <FiCreditCard color="var(--brand-primary)" /> Payment
+                <FiCreditCard color="var(--brand-primary)" aria-hidden="true" /> Payment
               </div>
               <div className="card-body">
                 <p style={{ color: "var(--text-secondary)", marginBottom: "0.75rem" }}>Method: {paymentMethod}</p>
@@ -87,13 +118,20 @@ const OrderScreen = () => {
             {/* Items */}
             <div className="card">
               <div className="card-header" style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                <FiPackage color="var(--brand-primary)" /> Items
+                <FiPackage color="var(--brand-primary)" aria-hidden="true" /> Items
               </div>
               <div className="card-body" style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
                 {orderItems.map((item) => (
-                  <div key={item.product} style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                    <img src={item.image} alt={item.name} style={{ width: 48, height: 48, objectFit: "cover", borderRadius: "var(--radius-sm)" }} />
-                    <Link to={`/product/${item.product}`} style={{ flex: 1, fontSize: "0.875rem", fontWeight: 600 }}>{item.name}</Link>
+                  <div key={item.product} style={{ display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      loading="lazy"
+                      style={{ width: 48, height: 48, objectFit: "cover", borderRadius: "var(--radius-sm)" }}
+                    />
+                    <Link to={`/product/${item.product}`} style={{ flex: 1, minWidth: 140, fontSize: "0.875rem", fontWeight: 600 }}>
+                      {item.name}
+                    </Link>
                     <span style={{ color: "var(--text-muted)", fontSize: "0.875rem", whiteSpace: "nowrap" }}>
                       {item.qty} × ${item.price.toFixed(2)}
                     </span>
@@ -133,7 +171,7 @@ const OrderScreen = () => {
                         })
                       }
                       onApprove={onApprove}
-                      onError={(err) => toast.error("Payment failed. Please try again.")}
+                      onError={() => toast.error("Payment failed. Please try again.")}
                       style={{ layout: "vertical", shape: "rect" }}
                     />
                   </PayPalScriptProvider>
@@ -143,12 +181,13 @@ const OrderScreen = () => {
               {/* Admin deliver button */}
               {userInfo?.isAdmin && isPaid && !isDelivered && (
                 <button
+                  type="button"
                   className="btn-primary btn-block"
                   style={{ marginTop: "1rem" }}
                   onClick={handleDeliver}
                   disabled={loadingDeliver}
                 >
-                  <FiCheck size={16} />
+                  <FiCheck size={16} aria-hidden="true" />
                   {loadingDeliver ? "Updating..." : "Mark as Delivered"}
                 </button>
               )}

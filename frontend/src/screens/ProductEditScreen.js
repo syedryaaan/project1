@@ -51,8 +51,8 @@ const ProductEditScreen = () => {
       dispatch({ type: PRODUCT_UPDATE_RESET });
       toast.success("Product updated successfully!");
       navigate("/admin/productlist");
-    } else {
-      if (!product.name || product._id !== productId) {
+    } else if (!error) {
+      if (!product?.name || product._id !== productId) {
         dispatch(listProductDetails(productId));
       } else {
         setName(product.name);
@@ -65,7 +65,7 @@ const ProductEditScreen = () => {
         setDescription(product.description);
       }
     }
-  }, [dispatch, navigate, product, productId, successUpdate, userInfo]);
+  }, [dispatch, navigate, product, productId, successUpdate, userInfo, error]);
 
   const uploadFileHandler = async (e) => {
     const file = e.target.files[0];
@@ -143,8 +143,9 @@ const ProductEditScreen = () => {
               <form onSubmit={submitHandler} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
                 {/* Product Name */}
                 <div className="form-group">
-                  <label className="form-label">Product Title</label>
+                  <label htmlFor="prod-name" className="form-label">Product Title</label>
                   <input
+                    id="prod-name"
                     type="text"
                     className="form-control"
                     placeholder="Enter product title"
@@ -155,10 +156,11 @@ const ProductEditScreen = () => {
                 </div>
 
                 {/* Price & Discount */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                <div className="form-two-col">
                   <div className="form-group">
-                    <label className="form-label">Price ($)</label>
+                    <label htmlFor="prod-price" className="form-label">Price ($)</label>
                     <input
+                      id="prod-price"
                       type="number"
                       step="0.01"
                       className="form-control"
@@ -169,8 +171,9 @@ const ProductEditScreen = () => {
                     />
                   </div>
                   <div className="form-group">
-                    <label className="form-label">Discount (%)</label>
+                    <label htmlFor="prod-discount" className="form-label">Discount (%)</label>
                     <input
+                      id="prod-discount"
                       type="number"
                       min="0"
                       max="100"
@@ -183,10 +186,11 @@ const ProductEditScreen = () => {
                 </div>
 
                 {/* Brand & Category */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                <div className="form-two-col">
                   <div className="form-group">
-                    <label className="form-label">Brand</label>
+                    <label htmlFor="prod-brand" className="form-label">Brand</label>
                     <input
+                      id="prod-brand"
                       type="text"
                       className="form-control"
                       placeholder="Enter brand name"
@@ -196,8 +200,9 @@ const ProductEditScreen = () => {
                     />
                   </div>
                   <div className="form-group">
-                    <label className="form-label">Category</label>
+                    <label htmlFor="prod-category" className="form-label">Category</label>
                     <input
+                      id="prod-category"
                       type="text"
                       className="form-control"
                       placeholder="Electronics, Audio, Gaming..."
@@ -210,8 +215,9 @@ const ProductEditScreen = () => {
 
                 {/* Stock Count */}
                 <div className="form-group">
-                  <label className="form-label">Units in Stock</label>
+                  <label htmlFor="prod-stock" className="form-label">Units in Stock</label>
                   <input
+                    id="prod-stock"
                     type="number"
                     min="0"
                     className="form-control"
@@ -224,8 +230,9 @@ const ProductEditScreen = () => {
 
                 {/* Image URL & Upload */}
                 <div className="form-group">
-                  <label className="form-label">Image Path / URL</label>
+                  <label htmlFor="prod-image" className="form-label">Image Path / URL</label>
                   <input
+                    id="prod-image"
                     type="text"
                     className="form-control"
                     placeholder="/images/sample.jpg or https://..."
@@ -239,7 +246,7 @@ const ProductEditScreen = () => {
                       className="btn-secondary btn-sm"
                       style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: "0.4rem" }}
                     >
-                      <FiUpload size={14} /> Upload Image File
+                      <FiUpload size={14} aria-hidden="true" /> Upload Image File
                       <input
                         type="file"
                         onChange={uploadFileHandler}
@@ -253,8 +260,9 @@ const ProductEditScreen = () => {
 
                 {/* Description */}
                 <div className="form-group">
-                  <label className="form-label">Product Description</label>
+                  <label htmlFor="prod-desc" className="form-label">Product Description</label>
                   <textarea
+                    id="prod-desc"
                     rows="5"
                     className="form-control"
                     placeholder="Detailed specs, features, and selling points..."

@@ -102,18 +102,21 @@ const UserListScreen = () => {
                             to={`/admin/user/${u._id}/edit`}
                             className="btn-secondary btn-sm"
                             style={{ padding: "0.35rem 0.65rem", display: "inline-flex", alignItems: "center" }}
-                            title="Edit User"
+                            title={`Edit ${u.name}`}
+                            aria-label={`Edit ${u.name}`}
                           >
-                            <FiEdit size={14} />
+                            <FiEdit size={14} aria-hidden="true" />
                           </Link>
                           {!u.isAdmin && (
                             <button
+                              type="button"
                               onClick={() => deleteHandler(u._id, u.name)}
                               className="btn-danger"
                               style={{ padding: "0.35rem 0.65rem" }}
-                              title="Delete User"
+                              title={`Delete ${u.name}`}
+                              aria-label={`Delete ${u.name}`}
                             >
-                              <FiTrash2 size={14} />
+                              <FiTrash2 size={14} aria-hidden="true" />
                             </button>
                           )}
                         </div>

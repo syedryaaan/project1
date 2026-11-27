@@ -1,4 +1,5 @@
 import axios from "axios";
+import { toast } from "react-toastify";
 import {
   CART_ADD_ITEM,
   CART_REMOVE_ITEM,
@@ -7,21 +8,35 @@ import {
 } from "../constants/cartConstants";
 
 export const addToCart = (id, qty) => async (dispatch, getState) => {
-  const { data } = await axios.get(`/api/products/${id}`);
+  try {
+    const { data } = await axios.get(`/api/products/${id}`);
+    const effectivePrice = data.discount
+      ? Number((data.price * (1 - data.discount / 100)).toFixed(2))
+      : data.price;
 
-  dispatch({
-    type: CART_ADD_ITEM,
-    payload: {
-      product: data._id,
-      name: data.name,
-      image: data.image,
-      price: data.price,
-      countInStock: data.countInStock,
-      qty,
-    },
-  });
+    dispatch({
+      type: CART_ADD_ITEM,
+      payload: {
+        product: data._id,
+        name: data.name,
+        image: data.image,
+        price: effectivePrice,
+        countInStock: data.countInStock,
+        qty,
+      },
+    });
 
-  localStorage.setItem("cartItems", JSON.stringify(getState().cart.cartItems));
+    localStorage.setItem(
+      "cartItems",
+      JSON.stringify(getState().cart.cartItems)
+    );
+  } catch (error) {
+    toast.error(
+      error.response && error.response.data.message
+        ? error.response.data.message
+        : "Could not add item to cart"
+    );
+  }
 };
 
 export const removeFromCart = (id) => (dispatch, getState) => {
